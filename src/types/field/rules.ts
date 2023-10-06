@@ -4,17 +4,21 @@ import { CellPosition, PositionLink } from 'types/common';
 export type onBeforeMutateField = (
   oldField: FieldEntity,
   cellsToMove: PositionLink[],
-  cellsToSet: CellPosition[]
+  cellsToSet: CellPosition[],
+  cellsToSwap: PositionLink[]
 ) => void | {
   cellsToMove: PositionLink[];
   cellsToSet: CellPosition[];
+  cellsToSwap: PositionLink[];
 };
 
 export type onAfterMutateField = (
   newField: FieldEntity,
-  cellsMoved: PositionLink[],
-  cellsSet: CellPosition[]
+  cellsToMove: PositionLink[],
+  cellsToSet: CellPosition[],
+  cellsToSwap: PositionLink[]
 ) => void | {
-  cellsMoved: PositionLink[];
-  cellsSet: CellPosition[];
+  cellsToMove: PositionLink[];
+  cellsToSet: CellPosition[];
+  cellsToSwap: PositionLink[];
 };

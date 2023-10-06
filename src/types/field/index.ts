@@ -1,13 +1,16 @@
 import { Entity } from 'excalibur';
 import { Direction, Field } from 'types/field/types';
 import { CellPosition, PositionLink } from 'types/common';
+import { onAfterMutateField, onBeforeMutateField } from 'types/field/rules';
 
 export class FieldEntity extends Entity {
   public column: number;
-  public direction: Direction;
   public row: number;
+  public direction: Direction;
 
   private _field: Field;
+  private _beforeMutateFieldRules: onBeforeMutateField[] = [];
+  private _afterMutateFieldRules: onAfterMutateField[] = [];
 
   constructor(column: number, row: number, direction: Direction) {
     super();
@@ -36,10 +39,40 @@ export class FieldEntity extends Entity {
     // Todo: Update rendering
   }
 
-  mutateField(cellsToMove: PositionLink[], cellsToSet: CellPosition[]) {
-    const mutatedField = this._field;
-    cellsToSet.forEach(({ cell, column, row }) => {
-      mutatedField[column][row] = cell;
+  mutateField(
+    cellsToMove: PositionLink[],
+    cellsToSet: CellPosition[],
+    cellsToSwap: PositionLink[]
+  ) {
+    for (const rule of this._beforeMutateFieldRules) {
+      const result = rule(this, cellsToMove, cellsToSet, cellsToSwap);
+      if (!result) {
+        break;
+      }
+      cellsToMove = result.cellsToMove;
+      cellsToSet = result.cellsToSet;
+      cellsToSwap = result.cellsToSwap;
+    }
+    cellsToMove.forEach(({ from, to }) => {
+      this._field[to.column][to.row] = this._field[from.column][from.row];
+      this._field[from.column][from.row] = null;
     });
+    cellsToSet.forEach(({ cell, column, row }) => {
+      this._field[column][row] = cell;
+    });
+    cellsToSwap.forEach(({ from, to }) => {
+      const temp = this._field[from.column][from.row];
+      this._field[from.column][from.row] = this._field[to.column][to.row];
+      this._field[to.column][to.row] = temp;
+    });
+    for (const rule of this._afterMutateFieldRules) {
+      const result = rule(this, cellsToMove, cellsToSet, cellsToSwap);
+      if (!result) {
+        break;
+      }
+      cellsToMove = result.cellsToMove;
+      cellsToSet = result.cellsToSet;
+      cellsToSwap = result.cellsToSwap;
+    }
   }
 }

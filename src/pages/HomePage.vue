@@ -1,10 +1,41 @@
 <script setup lang="ts">
-import { Actor, Color, DisplayMode, Engine, vec } from 'excalibur';
+import {
+  Actor,
+  Color,
+  DisplayMode,
+  Engine,
+  ImageSource,
+  SpriteSheet,
+} from 'excalibur';
 import { onMounted, ref, Ref } from 'vue';
+
+import crystalSkinImage from 'assets/skin/crystal.png';
+import crystalSkinConfig from 'assets/skin/crystal.json';
+import { skinManager } from 'types/SkinManager';
 
 const mainGame: Ref<HTMLCanvasElement | undefined> = ref();
 
-const edgeLength = 50;
+skinManager.load('crystal', {
+  src: crystalSkinImage,
+  ...crystalSkinConfig,
+});
+
+const edgeLength = 30;
+
+const cellImageSource = new ImageSource(crystalSkinImage);
+cellImageSource.load();
+
+const cellSpriteSheet = SpriteSheet.fromImageSource({
+  image: cellImageSource,
+  grid: {
+    columns: crystalSkinConfig.column,
+    rows: crystalSkinConfig.count / crystalSkinConfig.column,
+    spriteHeight: crystalSkinConfig.height,
+    spriteWidth: crystalSkinConfig.width,
+  },
+});
+
+cellSpriteSheet.getSprite(0, 0);
 
 const field = new Actor({
   color: Color.Black,
@@ -12,17 +43,16 @@ const field = new Actor({
   y: 100,
 });
 
-for (let i = 0; i < 10; i++) {
-  for (let j = 0; j < 10; j++) {
-    field.addChild(
-      new Actor({
-        color: Color.fromHSL(i / 10, j / 10, 0.4),
-        height: edgeLength,
-        width: edgeLength,
-        x: i * edgeLength,
-        y: j * edgeLength,
-      })
-    );
+for (let i = 0; i < 16; i++) {
+  for (let j = 0; j < 12; j++) {
+    const cell = new Actor({
+      height: edgeLength,
+      width: edgeLength,
+      x: i * edgeLength,
+      y: j * edgeLength,
+    });
+    cell.graphics.use(cellSpriteSheet.getSprite(i % 8, j % 3)!);
+    field.addChild(cell);
   }
 }
 
@@ -39,11 +69,6 @@ onMounted(() => {
     canvasElement: mainGame.value,
     displayMode: DisplayMode.FillContainer,
     enableCanvasTransparency: true,
-  });
-
-  game.input.pointers.primary.on('move', (event) => {
-    const ratio = event.pagePos.y / (game.canvasHeight / 2);
-    field.scale = vec(ratio, ratio);
   });
 
   game.add(field);
