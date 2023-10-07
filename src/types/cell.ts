@@ -1,14 +1,17 @@
 import { Actor, Sprite } from 'excalibur';
+import { ActorArgs } from 'excalibur/build/dist/Actor';
 
 export class CellActor extends Actor {
-  constructor(edgeLength: number) {
+  constructor(sprite: Sprite, configs?: ActorArgs) {
     super({
-      height: edgeLength,
-      width: edgeLength,
+      ...configs,
+      height: sprite.height,
+      width: sprite.width,
     });
+    this.graphics.use(sprite);
   }
 
-  setSprite(sprite: Sprite) {
+  updateSprite(sprite: Sprite) {
     this.graphics.use(sprite);
   }
 }

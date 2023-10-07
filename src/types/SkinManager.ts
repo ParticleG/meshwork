@@ -10,6 +10,7 @@ interface SkinData {
 
 interface SkinSpriteSheet {
   source: ImageSource;
+  spriteCount: number;
   spriteSheet: SpriteSheet;
 }
 
@@ -25,6 +26,7 @@ class SkinManager {
 
     this._skinMap.set(name, {
       source,
+      spriteCount: data.count,
       spriteSheet: SpriteSheet.fromImageSource({
         image: source,
         grid: {
@@ -39,6 +41,17 @@ class SkinManager {
 
   get(name: string) {
     return this._skinMap.get(name);
+  }
+
+  getSprite(name: string, index: number) {
+    const skin = this.get(name);
+    if (skin) {
+      const realIndex = index % skin.spriteCount;
+      return skin.spriteSheet.getSprite(
+        realIndex % skin.spriteSheet.columns,
+        Math.floor(realIndex / skin.spriteSheet.columns)
+      );
+    }
   }
 }
 

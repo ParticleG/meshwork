@@ -1,9 +1,10 @@
-import { Entity } from 'excalibur';
+import { Actor } from 'excalibur';
 import { Direction, Field } from 'types/field/types';
 import { CellPosition, PositionLink } from 'types/common';
 import { onAfterMutateField, onBeforeMutateField } from 'types/field/rules';
+import { ActorArgs } from 'excalibur/build/dist/Actor';
 
-export class FieldEntity extends Entity {
+export class FieldEntity extends Actor {
   public column: number;
   public row: number;
   public direction: Direction;
@@ -12,8 +13,13 @@ export class FieldEntity extends Entity {
   private _beforeMutateFieldRules: onBeforeMutateField[] = [];
   private _afterMutateFieldRules: onAfterMutateField[] = [];
 
-  constructor(column: number, row: number, direction: Direction) {
-    super();
+  constructor(
+    column: number,
+    row: number,
+    direction: Direction,
+    configs?: ActorArgs
+  ) {
+    super(configs);
     this.column = column;
     this.direction = direction;
     this.row = row;
@@ -35,8 +41,6 @@ export class FieldEntity extends Entity {
     this.column = column;
     this.direction = direction;
     this.row = row;
-
-    // Todo: Update rendering
   }
 
   mutateField(
@@ -58,7 +62,16 @@ export class FieldEntity extends Entity {
       this._field[from.column][from.row] = null;
     });
     cellsToSet.forEach(({ cell, column, row }) => {
+      const previousCell = this._field[column][row];
+      if (previousCell) {
+        this.removeChild(previousCell);
+      }
       this._field[column][row] = cell;
+      if (cell) {
+        cell.pos.x = column * cell.width;
+        cell.pos.y = row * cell.height;
+        this.addChild(cell);
+      }
     });
     cellsToSwap.forEach(({ from, to }) => {
       const temp = this._field[from.column][from.row];
