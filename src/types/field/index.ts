@@ -1,4 +1,4 @@
-import { Actor } from 'excalibur';
+import { Actor, EasingFunctions, vec } from 'excalibur';
 import { Direction, Field } from 'types/field/types';
 import { CellPosition, PositionLink } from 'types/common';
 import { onAfterMutateField, onBeforeMutateField } from 'types/field/rules';
@@ -58,6 +58,18 @@ export class FieldEntity extends Actor {
       cellsToSwap = result.cellsToSwap;
     }
     cellsToMove.forEach(({ from, to }) => {
+      const fromCell = this._field[from.column][from.row];
+      const toCell = this._field[to.column][to.row];
+      if (toCell) {
+        toCell.actions.fade(0, 500).die();
+      }
+      if (fromCell) {
+        fromCell.actions.easeTo(
+          vec(to.column * fromCell.width, to.row * fromCell.height),
+          500,
+          EasingFunctions.EaseInOutCubic
+        );
+      }
       this._field[to.column][to.row] = this._field[from.column][from.row];
       this._field[from.column][from.row] = null;
     });
