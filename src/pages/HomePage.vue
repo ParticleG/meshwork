@@ -39,6 +39,13 @@ onMounted(async () => {
 
   game.add(field);
 
+  setInterval(() => {
+    console.log({
+      totalActors: game.currentScene.actors.length,
+      fieldChildren: field.children.length,
+    });
+  }, 1000);
+
   await game.start();
 });
 
@@ -58,7 +65,6 @@ const fillField = () => {
     }
   }
   field.mutateField([], cellToSet, []);
-  console.log(field.children.length);
 };
 
 const setRandomCells = () => {
@@ -78,10 +84,9 @@ const setRandomCells = () => {
     });
   }
   field.mutateField([], cellToSet, []);
-  console.log(field.children.length);
 };
 
-const MoveRandomCells = () => {
+const moveRandomCells = () => {
   const randomCountArray = new Uint32Array(1);
   crypto.getRandomValues(randomCountArray);
 
@@ -101,7 +106,28 @@ const MoveRandomCells = () => {
     });
   }
   field.mutateField(cellToMove, [], []);
-  console.log(field.children.length);
+};
+
+const swapRandomCells = () => {
+  const randomCountArray = new Uint32Array(1);
+  crypto.getRandomValues(randomCountArray);
+
+  const cellToSwap: PositionLink[] = [];
+  for (let i = 0; i < Math.floor(randomCountArray[0] % 10); i++) {
+    const randomArray = new Uint32Array(4);
+    crypto.getRandomValues(randomArray);
+    cellToSwap.push({
+      from: {
+        column: Math.floor(randomArray[0] % 10),
+        row: Math.floor(randomArray[1] % 20),
+      },
+      to: {
+        column: Math.floor(randomArray[2] % 10),
+        row: Math.floor(randomArray[3] % 20),
+      },
+    });
+  }
+  field.mutateField([], [], cellToSwap);
 };
 </script>
 
@@ -113,7 +139,8 @@ const MoveRandomCells = () => {
     </q-card>
     <q-btn color="primary" label="Fill field" @click="fillField" />
     <q-btn color="secondary" label="Set random cells" @click="setRandomCells" />
-    <q-btn color="accent" label="Move random cells" @click="MoveRandomCells" />
+    <q-btn color="accent" label="Move random cells" @click="moveRandomCells" />
+    <q-btn color="amber" label="Swap random cells" @click="swapRandomCells" />
   </q-page>
 </template>
 

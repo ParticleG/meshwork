@@ -60,15 +60,15 @@ export class FieldEntity extends Actor {
     cellsToMove.forEach(({ from, to }) => {
       const fromCell = this._field[from.column][from.row];
       const toCell = this._field[to.column][to.row];
-      if (toCell) {
-        toCell.actions.fade(0, 500).die();
-      }
       if (fromCell) {
         fromCell.actions.easeTo(
           vec(to.column * fromCell.width, to.row * fromCell.height),
-          500,
+          250,
           EasingFunctions.EaseInOutCubic
         );
+      }
+      if (toCell) {
+        toCell.actions.fade(0, 250).die();
       }
       this._field[to.column][to.row] = this._field[from.column][from.row];
       this._field[from.column][from.row] = null;
@@ -76,7 +76,8 @@ export class FieldEntity extends Actor {
     cellsToSet.forEach(({ cell, column, row }) => {
       const previousCell = this._field[column][row];
       if (previousCell) {
-        this.removeChild(previousCell);
+        previousCell.actions.die();
+        // this.removeChild(previousCell);
       }
       this._field[column][row] = cell;
       if (cell) {
@@ -86,9 +87,24 @@ export class FieldEntity extends Actor {
       }
     });
     cellsToSwap.forEach(({ from, to }) => {
-      const temp = this._field[from.column][from.row];
-      this._field[from.column][from.row] = this._field[to.column][to.row];
-      this._field[to.column][to.row] = temp;
+      const fromCell = this._field[from.column][from.row];
+      const toCell = this._field[to.column][to.row];
+      if (fromCell) {
+        fromCell.actions.easeTo(
+          vec(to.column * fromCell.width, to.row * fromCell.height),
+          250,
+          EasingFunctions.EaseInOutCubic
+        );
+      }
+      if (toCell) {
+        toCell.actions.easeTo(
+          vec(from.column * toCell.width, from.row * toCell.height),
+          250,
+          EasingFunctions.EaseInOutCubic
+        );
+      }
+      this._field[from.column][from.row] = toCell;
+      this._field[to.column][to.row] = fromCell;
     });
     for (const rule of this._afterMutateFieldRules) {
       const result = rule(this, cellsToMove, cellsToSet, cellsToSwap);
