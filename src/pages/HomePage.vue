@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Color, DisplayMode, Engine } from 'excalibur';
 import { onMounted, ref, Ref } from 'vue';
 
 import crystalSkinImage from 'assets/skin/crystal.png';
@@ -15,10 +14,7 @@ const onResize = (event: ResizeObserverEntry) => {
   console.log(event);
 };
 
-const field = new FieldEntity(40, 30, Direction.Down, {
-  x: 20,
-  y: 20,
-});
+const field = new FieldEntity(40, 30, Direction.Down);
 
 const fillField = () => {
   const cellToSet: CellPosition[] = [];
