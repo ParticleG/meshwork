@@ -1,0 +1,1 @@
+import{b as e}from"./index-B9tPLpDt.js";import{c as o}from"./vue-i18n.runtime-BXZKxKS7.js";const n={layouts:{drawers:{LeftMainDrawer:{navigations:{dashboard:"Dashboard"}}}}},t={"en-US":n},i=e(({app:a})=>{const s=o({locale:"en-US",legacy:!1,messages:t});a.use(s)});export{i as default};
