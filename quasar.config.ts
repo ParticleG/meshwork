@@ -90,7 +90,7 @@ export default configure((ctx) => {
       // distDir
 
       extendViteConf(viteConf) {
-        viteConf.base = process.env.DEPLOY_GITHUB_PAGE ? '/apex-helper/' : '/';
+        viteConf.base = process.env.DEPLOY_GITHUB_PAGE ? '/meshwork/' : '/';
       },
       // viteVuePluginOptions: {},
 
