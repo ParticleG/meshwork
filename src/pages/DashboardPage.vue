@@ -6,40 +6,31 @@ import crystalSkinImage from 'assets/skin/crystal.png';
 import crystalSkinConfig from 'assets/skin/crystal.json';
 import { skinManager } from 'types/SkinManager';
 import { FrameActor } from 'src/types/container';
-import { FaceActor } from 'types/item';
+import { FaceData } from 'types/item/types';
 
 const mainGame = ref<HTMLCanvasElement>();
 
-const field = new FrameActor(10, 30);
+const field = new FrameActor(10, 20);
 
 const randomArray = new Uint32Array(1);
 crypto.getRandomValues(randomArray);
 skinManager.getSprite('crystal', Math.floor(randomArray[0] % 16));
-
-console.log(field);
 
 const fillField = () => {
   for (let i = 0; i < field.column; i++) {
     for (let j = 0; j < field.row; j++) {
       const randomArray = new Uint32Array(1);
       crypto.getRandomValues(randomArray);
-      field.mutateField(
-        [],
-        [
-          {
-            item: {
-              position: { x: i, y: j },
-              skin: {
-                name: 'crystal',
-                index: Math.floor(randomArray[0] % 16),
-              },
-              data: null,
-            },
-            position: { x: i, y: j },
-          },
-        ],
-        [],
-      );
+      field.insert([
+        {
+          value: new FaceData(
+            'crystal',
+            Math.floor(randomArray[0] % 16),
+            undefined,
+          ),
+          position: { x: i, y: j },
+        },
+      ]);
     }
   }
 };
@@ -55,23 +46,8 @@ onMounted(async () => {
     src: crystalSkinImage,
     ...crystalSkinConfig,
   });
-  const faceActor = new FaceActor({
-    position: { x: 0, y: 0 },
-    skin: {
-      name: 'crystal',
-      index: 0,
-    },
-    data: null,
-  });
-  game.add(faceActor);
   game.add(field);
   fillField();
-  setInterval(() => {
-    console.log({
-      totalActors: game.currentScene.actors.length,
-      fieldChildren: field.children.length,
-    });
-  }, 3000);
   await game.start();
 });
 </script>

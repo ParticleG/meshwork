@@ -1,41 +1,26 @@
-import { Actor, ActorArgs, Vector } from 'excalibur';
+import { Actor, ActorArgs, GraphicsGroup, vec } from 'excalibur';
 
-import { BinaryPosition } from 'types/common';
-import { Face } from 'types/item/types';
-import { skinManager } from 'types/SkinManager';
+import { RenderingFaces } from 'types/item/types';
 
-export class FaceActor extends Actor {
-  private _face: Face;
+export class FaceGroupActor extends Actor {
+  private _renderingFaces: RenderingFaces[];
 
-  constructor(face: Face, extraArgs?: ActorArgs) {
-    const sprite = skinManager.getSprite(face.skin.name, face.skin.index);
-    if (!sprite) {
-      throw new Error(`Sprite not found: ${face.skin.name}:${face.skin.index}`);
-    }
-    super({
-      ...extraArgs,
-      anchor: new Vector(0,0),
-      x: face.position.x * sprite.width,
-      y: face.position.y * sprite.height,
+  constructor(renderingFaces: RenderingFaces[], actorArgs?: ActorArgs) {
+    super(actorArgs);
+    this._renderingFaces = renderingFaces;
+
+    this._updateGraphics();
+  }
+
+  private _updateGraphics() {
+    const group = new GraphicsGroup({
+      members: this._renderingFaces.map(({ renderPosition, sprite }) => {
+        return {
+          graphic: sprite,
+          offset: vec(renderPosition.x, renderPosition.y),
+        };
+      }),
     });
-    this._face = face;
-
-    this.graphics.use(sprite);
+    this.graphics.use(group);
   }
-
-  updateSprite(name: string, index: number) {
-    const sprite = skinManager.getSprite(name, index);
-    if (!sprite) {
-      throw new Error(`Sprite not found: ${name}:${index}`);
-    }
-    this._face.skin.name = name;
-    this._face.skin.index = index;
-
-    this.graphics.use(sprite);
-  }
-}
-
-export interface FacePosition {
-  item: Face;
-  position: BinaryPosition;
 }
