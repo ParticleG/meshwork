@@ -9,8 +9,8 @@ import {
 import { BinaryPosition } from 'types/common';
 
 export class FrameActor extends Actor {
-  public column: number;
-  public row: number;
+  column: number;
+  row: number;
 
   private _field: Frame;
   private _modifyHandlersMap = new Map<ModifyHandlerType, ModifyHandler[]>([
@@ -23,8 +23,7 @@ export class FrameActor extends Actor {
   constructor(column: number, row: number) {
     super({
       anchor: vec(0, 0),
-      height: 800,
-      width: 800,
+      scale: vec(1, 1),
     });
     this.column = column;
     this.row = row;
@@ -78,10 +77,15 @@ export class FrameActor extends Actor {
       }
     }
 
-    const extracted = positionedFaces.map(({ position }) => ({
-      position,
-      value: this._field[position.x][position.y],
-    }));
+    const extracted: PositionedFace[] = [];
+
+    positionedFaces.forEach(({ position: { x, y } }) => {
+      extracted.push({
+        position: { x, y },
+        value: this._field[x][y],
+      });
+      this._field[x][y] = undefined;
+    });
 
     positionedFaces = extracted;
 
@@ -147,13 +151,18 @@ export class FrameActor extends Actor {
     }
   }
 
+  get size() {
+    const { bottom, left, right, top } = this.graphics.bounds;
+    return { height: bottom - top, width: right - left };
+  }
+
   private _updateGraphics() {
-    const members = this._field.flatMap((column, i) =>
-      column.flatMap((face, j) =>
+    const members = this._field.flatMap((column, columnIndex) =>
+      column.flatMap((face, faceIndex) =>
         face
           ? {
               graphic: face.sprite,
-              offset: vec(i * face.width, j * face.height),
+              offset: vec(columnIndex * face.width, faceIndex * face.height),
             }
           : [],
       ),

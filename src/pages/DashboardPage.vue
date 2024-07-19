@@ -17,22 +17,32 @@ crypto.getRandomValues(randomArray);
 skinManager.getSprite('crystal', Math.floor(randomArray[0] % 16));
 
 const fillField = () => {
-  for (let i = 0; i < field.column; i++) {
-    for (let j = 0; j < field.row; j++) {
+  const positionedFaces = [];
+  for (let i = 0; i < field.row; i++) {
+    for (let j = 0; j < field.column; j++) {
       const randomArray = new Uint32Array(1);
       crypto.getRandomValues(randomArray);
-      field.insert([
-        {
-          value: new FaceData(
-            'crystal',
-            Math.floor(randomArray[0] % 16),
-            undefined,
-          ),
-          position: { x: i, y: j },
-        },
-      ]);
+      positionedFaces.push({
+        value: new FaceData(
+          'crystal',
+          Math.floor(randomArray[0] % 16),
+          undefined,
+        ),
+        position: { x: j, y: i },
+      });
     }
   }
+  field.insert(positionedFaces);
+};
+
+const clearField = () => {
+  const positions = [];
+  for (let i = 0; i < field.row; i++) {
+    for (let j = 0; j < field.column; j++) {
+      positions.push({ x: j, y: i });
+    }
+  }
+  field.extract(positions);
 };
 
 onMounted(async () => {
@@ -48,15 +58,19 @@ onMounted(async () => {
   });
   game.add(field);
   fillField();
+  console.log(field.size);
   await game.start();
 });
 </script>
 
 <template>
   <q-page class="row items-center justify-evenly">
-    <q-card class="cursor-none" style="height: 80vh; width: 80vw">
-      <canvas ref="mainGame" class="rounded-borders" />
-    </q-card>
+    <div class="col-10 column">
+      <q-card class="cursor-none" style="height: 80vh">
+        <canvas ref="mainGame" class="rounded-borders" />
+      </q-card>
+      <q-btn label="clear" @click="clearField" />
+    </div>
   </q-page>
 </template>
 
