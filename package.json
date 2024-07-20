@@ -16,6 +16,7 @@
   "dependencies": {
     "@quasar/extras": "^1.16.11",
     "axios": "^1.7.2",
+    "excalibur": "^0.29.3",
     "pinia": "^2.1.7",
     "quasar": "^2.16.4",
     "register-service-worker": "^1.7.2",
