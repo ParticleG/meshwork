@@ -6,6 +6,7 @@
       "app/*": ["*"],
       "assets/*": ["src/assets/*"],
       "boot/*": ["src/boot/*"],
+      "constants/*": ["src/constants/*"],
       "components/*": ["src/components/*"],
       "css/*": ["src/css/*"],
       "layouts/*": ["src/layouts/*"],

@@ -1,6 +1,6 @@
+import { BinaryPosition, HandlerBase } from 'types/common';
 import { FrameActor } from 'types/container/index';
 import { Cell, FaceData } from 'types/item/types';
-import { BinaryPosition } from 'types/common';
 
 export enum ModifyHandlerType {
   AfterExtract = 'AfterExtract',
@@ -14,14 +14,7 @@ export interface PositionedFace {
   value?: FaceData;
 }
 
-export interface ModifyHandler {
-  id: string;
-  handle: (
-    context: FrameActor,
-    data: PositionedFace[],
-  ) => PositionedFace[] | void;
-  priority: number;
-}
+export type ModifyHandler = HandlerBase<[FrameActor, PositionedFace[]]>;
 
 export class Field extends Array<Array<Array<Cell | undefined>>> {
   constructor(column: number, row: number, depth: number) {

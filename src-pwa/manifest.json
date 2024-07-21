@@ -1,8 +1,6 @@
 {
   "background_color": "#ffffff",
-  "categories": [
-    "games"
-  ],
+  "categories": ["games"],
   "description": "A meshy game powered by Quasar",
   "dir": "ltr",
   "display": "standalone",

@@ -18,7 +18,7 @@ export default configure((ctx) => {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: ['axios', 'bus', 'i18n'],
+    boot: ['axios', 'bus', 'i18n', 'manager'],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
     css: ['app.scss'],
@@ -64,6 +64,7 @@ export default configure((ctx) => {
 
       alias: {
         css: fileURLToPath(new URL('./src/css', import.meta.url)),
+        constants: fileURLToPath(new URL('./src/constants', import.meta.url)),
         types: fileURLToPath(new URL('./src/types', import.meta.url)),
         utils: fileURLToPath(new URL('./src/utils', import.meta.url)),
       },

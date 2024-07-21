@@ -30,11 +30,16 @@ export class FaceData<T = undefined> {
   }
 }
 
-export class RenderingFaces extends FaceData{
+export class RenderingFaces<T = undefined> extends FaceData<T> {
   position: BinaryPosition;
 
-  constructor(skinName: string, skinIndex: number, position: BinaryPosition) {
-    super(skinName, skinIndex, undefined);
+  constructor(
+    skinName: string,
+    skinIndex: number,
+    data: T,
+    position: BinaryPosition,
+  ) {
+    super(skinName, skinIndex, data);
     this.position = position;
   }
 

@@ -1,16 +1,17 @@
-import { Actor, GraphicsGroup, vec } from 'excalibur';
+import { Actor, Color, Engine, GraphicsGroup, Rectangle, vec } from 'excalibur';
+import { GraphicsGrouping } from 'excalibur/build/dist/Graphics/GraphicsGroup';
 
+import { EDGE_LENGTH } from 'constants/common';
+import { BinaryPosition, HandlerResult } from 'types/common';
 import {
   ModifyHandler,
   Frame,
   ModifyHandlerType,
   PositionedFace,
 } from 'types/container/types';
-import { BinaryPosition } from 'types/common';
 
 export class FrameActor extends Actor {
-  column: number;
-  row: number;
+  fieldSize: BinaryPosition;
 
   private _field: Frame;
   private _modifyHandlersMap = new Map<ModifyHandlerType, ModifyHandler[]>([
@@ -20,24 +21,24 @@ export class FrameActor extends Actor {
     [ModifyHandlerType.BeforeInsert, []],
   ]);
 
-  constructor(column: number, row: number) {
+  constructor(fieldSize: BinaryPosition) {
     super({
       anchor: vec(0, 0),
-      scale: vec(1, 1),
+      height: EDGE_LENGTH * fieldSize.y,
+      width: EDGE_LENGTH * fieldSize.x,
     });
-    this.column = column;
-    this.row = row;
-    this._field = new Frame(column, row);
+    this.fieldSize = fieldSize;
+
+    this._field = new Frame(fieldSize.x, fieldSize.y);
   }
 
   morphField(
-    column: number,
-    row: number,
-    rearrangeRule: (context: FrameActor, column: number, row: number) => Frame,
+    fieldSize: BinaryPosition,
+    rearrangeRule: (context: FrameActor, fieldSize: BinaryPosition) => Frame,
   ) {
-    this._field = rearrangeRule(this, column, row);
-    this.column = column;
-    this.row = row;
+    this.fieldSize = fieldSize;
+
+    this._field = rearrangeRule(this, fieldSize);
   }
 
   addModifyHandler(
@@ -60,85 +61,77 @@ export class FrameActor extends Actor {
   }
 
   extract(positions: BinaryPosition[]): PositionedFace[] {
+    const extracted: PositionedFace[] = [];
+    let handlerResult: HandlerResult = HandlerResult.Continue;
     let positionedFaces: PositionedFace[] = positions.map((position) => ({
       position,
       value: this._field[position.x][position.y],
     }));
-    const beforeModifyHandlers = this._modifyHandlersMap.get(
+    for (const handler of this._modifyHandlersMap.get(
       ModifyHandlerType.BeforeExtract,
-    );
-    if (beforeModifyHandlers) {
-      for (const handler of beforeModifyHandlers) {
-        const result = handler.handle(this, positionedFaces);
-        if (!result) {
-          break;
-        }
-        positionedFaces = result;
+    ) ?? []) {
+      handlerResult = handler.handle(this, positionedFaces);
+      if (handlerResult === HandlerResult.Abort) {
+        return extracted;
+      } else if (handlerResult === HandlerResult.Break) {
+        break;
       }
     }
 
-    const extracted: PositionedFace[] = [];
-
-    positionedFaces.forEach(({ position: { x, y } }) => {
-      extracted.push({
-        position: { x, y },
-        value: this._field[x][y],
+    if (handlerResult !== HandlerResult.Skip) {
+      positionedFaces.forEach(({ position: { x, y } }) => {
+        extracted.push({
+          position: { x, y },
+          value: this._field[x][y],
+        });
+        this._field[x][y] = undefined;
       });
-      this._field[x][y] = undefined;
-    });
-
-    positionedFaces = extracted;
-
-    const afterModifyHandlers = this._modifyHandlersMap.get(
-      ModifyHandlerType.AfterExtract,
-    );
-    if (afterModifyHandlers) {
-      for (const handler of afterModifyHandlers) {
-        const result = handler.handle(this, positionedFaces);
-        if (!result) {
-          break;
-        }
-        positionedFaces = result;
-      }
+      positionedFaces = extracted;
     }
 
-    this._updateGraphics();
+    for (const handler of this._modifyHandlersMap.get(
+      ModifyHandlerType.AfterExtract,
+    ) ?? []) {
+      handlerResult = handler.handle(this, positionedFaces);
+      if (handlerResult === HandlerResult.Abort) {
+        return extracted;
+      } else if (handlerResult === HandlerResult.Break) {
+        break;
+      }
+    }
 
     return extracted;
   }
 
   insert(positionedFaces: PositionedFace[]) {
-    const beforeModifyHandlers = this._modifyHandlersMap.get(
+    let handlerResult: HandlerResult = HandlerResult.Continue;
+    for (const handler of this._modifyHandlersMap.get(
       ModifyHandlerType.BeforeInsert,
-    );
-    if (beforeModifyHandlers) {
-      for (const handler of beforeModifyHandlers) {
-        const result = handler.handle(this, positionedFaces);
-        if (!result) {
-          break;
-        }
-        positionedFaces = result;
+    ) ?? []) {
+      handlerResult = handler.handle(this, positionedFaces);
+      if (handlerResult === HandlerResult.Abort) {
+        return;
+      } else if (handlerResult === HandlerResult.Break) {
+        break;
       }
     }
 
-    positionedFaces.forEach(({ position: { x, y }, value }) => {
-      this._field[x][y] = value;
-    });
+    if (handlerResult !== HandlerResult.Skip) {
+      positionedFaces.forEach(({ position: { x, y }, value }) => {
+        this._field[x][y] = value;
+      });
+    }
 
-    const afterModifyHandlers = this._modifyHandlersMap.get(
+    for (const handler of this._modifyHandlersMap.get(
       ModifyHandlerType.AfterInsert,
-    );
-    if (afterModifyHandlers) {
-      for (const handler of afterModifyHandlers) {
-        const result = handler.handle(this, positionedFaces);
-        if (!result) {
-          break;
-        }
-        positionedFaces = result;
+    ) ?? []) {
+      handlerResult = handler.handle(this, positionedFaces);
+      if (handlerResult === HandlerResult.Abort) {
+        return;
+      } else if (handlerResult === HandlerResult.Break) {
+        break;
       }
     }
-
-    this._updateGraphics();
   }
 
   removeModifyHandler(handlerType: ModifyHandlerType, id: string) {
@@ -156,17 +149,41 @@ export class FrameActor extends Actor {
     return { height: bottom - top, width: right - left };
   }
 
+  update(engine: Engine, delta: number) {
+    this._updateGraphics();
+    super.update(engine, delta);
+  }
+
   private _updateGraphics() {
-    const members = this._field.flatMap((column, columnIndex) =>
-      column.flatMap((face, faceIndex) =>
-        face
-          ? {
-              graphic: face.sprite,
-              offset: vec(columnIndex * face.width, faceIndex * face.height),
-            }
-          : [],
+    const member: GraphicsGrouping[] = [
+      {
+        graphic: new Rectangle({
+          color: Color.Transparent,
+          strokeColor: Color.LightGray,
+          lineWidth: EDGE_LENGTH * 0.15,
+          height: this.height,
+          width: this.width,
+        }),
+        offset: vec(0, 0),
+      },
+    ];
+    const graphicsGroup = new GraphicsGroup({
+      members: member.concat(
+        this._field.flatMap((column, columnIndex) =>
+          column.flatMap((face, faceIndex) =>
+            face
+              ? {
+                  graphic: face.sprite,
+                  offset: vec(
+                    columnIndex * face.width,
+                    faceIndex * face.height,
+                  ),
+                }
+              : [],
+          ),
+        ),
       ),
-    );
-    this.graphics.use(new GraphicsGroup({ members }));
+    });
+    this.graphics.use(graphicsGroup);
   }
 }
