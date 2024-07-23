@@ -1,0 +1,1 @@
+import{ai as i,j as r,af as s,g as a}from"./index-CFBji5LO.js";function l(){let e=null;const n=a();function t(){e!==null&&(clearTimeout(e),e=null)}return i(t),r(t),{removeTimeout:t,registerTimeout(o,u){t(),s(n)===!1&&(e=setTimeout(()=>{e=null,o()},u))}}}export{l as u};

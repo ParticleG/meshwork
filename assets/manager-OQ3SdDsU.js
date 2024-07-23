@@ -1,0 +1,1 @@
+import{b as n}from"./index-CFBji5LO.js";import{s}from"./index-Cp-3e1w5.js";const t="/meshwork/assets/crystal-pq17D1e5.png",o=8,a=24,c=30,e={column:o,count:a,edgeLength:c},m=n(async()=>{await s.loadSkin("crystal",{src:t,...e})});export{m as default};
