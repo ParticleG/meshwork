@@ -6,8 +6,8 @@
 import { configure } from 'quasar/wrappers';
 import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync } from 'fs';
-import { resolve } from 'path';
 import { sync } from 'globby';
+import { resolve } from 'path';
 
 // noinspection JSUnusedGlobalSymbols
 export default configure((ctx) => {

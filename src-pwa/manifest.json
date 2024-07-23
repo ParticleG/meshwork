@@ -1,11 +1,14 @@
 {
   "background_color": "#ffffff",
-  "categories": ["games"],
+  "categories": [
+    "entertainment",
+    "games",
+    "personalization"
+  ],
   "description": "A meshy game powered by Quasar",
   "dir": "ltr",
   "display": "standalone",
   "display_override": [
-    "window-controls-overlay",
     "standalone",
     "minimal-ui",
     "browser"
@@ -37,9 +40,10 @@
       "type": "image/png"
     }
   ],
-  "id": "Particle_G/meshwork",
+  "id": "ParticleG/meshwork",
   "lang": "en",
   "name": "Meshwork",
+  "orientation": "landscape",
   "scope": "/",
   "screenshots": [],
   "short_name": "MW",
