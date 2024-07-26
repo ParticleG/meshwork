@@ -1,26 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-
 import { bus } from 'boot/bus';
 
-const obsstudio = ref();
-
-declare global {
-  // noinspection JSUnusedGlobalSymbols
-  interface Window {
-    obsstudio?: {
-      pluginVersion?: string;
-    };
-  }
-}
-
-onMounted(() => {
-  obsstudio.value = window.obsstudio;
-});
 </script>
 
 <template>
-  <q-header v-if="!obsstudio" bordered class="bg-primary text-white">
+  <q-header bordered class="bg-primary text-white">
     <q-toolbar>
       <q-btn
         dense
