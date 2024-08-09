@@ -24,18 +24,9 @@ export enum HandlerResult {
   Skip = 'Skip',
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface HandlerBase<T extends Parameters<any>> {
   id: string;
   handle: (...args: T) => HandlerResult;
   priority: number;
 }
-
-export const performHandlers = <
-  Args extends Parameters<any>,
-  MainFunc extends Function,
->(
-  afterHandlers: HandlerBase<Args>[],
-  beforeHandlers: HandlerBase<Args>[],
-  process: MainFunc,
-  ...args: Args
-) => {};

@@ -6,6 +6,8 @@ import { FrameActor } from 'src/types/container';
 import { FaceData, RenderingFaces } from 'types/item/types';
 import { FaceGroupActor } from 'types/item';
 import { BinaryPosition } from 'types/common';
+import { InteractionManager } from 'types/InteractionManager';
+import { Player } from 'types/Player';
 
 const mainGame = ref<HTMLCanvasElement>();
 
@@ -22,6 +24,7 @@ const faceGroupActor = new FaceGroupActor(
   { x: 1, y: 1 },
 );
 const field = new FrameActor(fieldSize);
+const currentPlayer = new Player();
 
 const randomInsertField = () => {
   const positionedFaces = [];
@@ -69,6 +72,8 @@ onMounted(async () => {
     enableCanvasTransparency: true,
     fixedUpdateFps: 1000,
   });
+  const interactionManager = new InteractionManager(currentPlayer, game.input);
+  interactionManager.players = [currentPlayer];
 
   game.add(field);
   game.add(faceGroupActor);
