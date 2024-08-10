@@ -13,7 +13,7 @@ import {
 export class FrameActor extends Actor {
   fieldSize: BinaryPosition;
 
-  private _field: Frame;
+  private _frame: Frame;
   private _modifyHandlersMap = new Map<ModifyHandlerType, ModifyHandler[]>([
     [ModifyHandlerType.AfterExtract, []],
     [ModifyHandlerType.AfterInsert, []],
@@ -29,7 +29,7 @@ export class FrameActor extends Actor {
     });
     this.fieldSize = fieldSize;
 
-    this._field = new Frame(fieldSize.x, fieldSize.y);
+    this._frame = new Frame(fieldSize.x, fieldSize.y);
   }
 
   morphField(
@@ -38,7 +38,7 @@ export class FrameActor extends Actor {
   ) {
     this.fieldSize = fieldSize;
 
-    this._field = rearrangeRule(this, fieldSize);
+    this._frame = rearrangeRule(this, fieldSize);
   }
 
   addModifyHandler(
@@ -65,7 +65,7 @@ export class FrameActor extends Actor {
     let handlerResult: HandlerResult = HandlerResult.Continue;
     let positionedFaces: PositionedFace[] = positions.map((position) => ({
       position,
-      value: this._field[position.x][position.y],
+      value: this._frame[position.x][position.y],
     }));
     for (const handler of this._modifyHandlersMap.get(
       ModifyHandlerType.BeforeExtract,
@@ -82,9 +82,9 @@ export class FrameActor extends Actor {
       positionedFaces.forEach(({ position: { x, y } }) => {
         extracted.push({
           position: { x, y },
-          value: this._field[x][y],
+          value: this._frame[x][y],
         });
-        this._field[x][y] = undefined;
+        this._frame[x][y] = undefined;
       });
       positionedFaces = extracted;
     }
@@ -118,7 +118,7 @@ export class FrameActor extends Actor {
 
     if (handlerResult !== HandlerResult.Skip) {
       positionedFaces.forEach(({ position: { x, y }, value }) => {
-        this._field[x][y] = value;
+        this._frame[x][y] = value;
       });
     }
 
@@ -169,7 +169,7 @@ export class FrameActor extends Actor {
     ];
     const graphicsGroup = new GraphicsGroup({
       members: member.concat(
-        this._field.flatMap((column, columnIndex) =>
+        this._frame.flatMap((column, columnIndex) =>
           column.flatMap((face, faceIndex) =>
             face
               ? {

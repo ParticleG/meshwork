@@ -1,3 +1,11 @@
+import { FrameActor } from 'types/container';
+import { FaceGroupActor } from 'types/item';
+
 export class Player {
-  constructor() {}
+  private _faceGroups: FaceGroupActor[] = [];
+  private _frames: FrameActor[] = [];
+
+  constructor() {
+
+  }
 }

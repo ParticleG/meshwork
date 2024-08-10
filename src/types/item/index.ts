@@ -8,7 +8,7 @@ import {
   Graphic,
   GraphicsGroup,
   Input,
-  vec,
+  vec
 } from 'excalibur';
 
 import { EDGE_LENGTH } from 'constants/common';
@@ -24,7 +24,7 @@ export class FaceGroupActor extends Actor {
   constructor(
     renderingFaces: RenderingFaces[],
     position: BinaryPosition,
-    actorArgs?: ActorArgs,
+    actorArgs?: ActorArgs
   ) {
     const xPositions = renderingFaces.map((face) => face.position.x);
     const yPositions = renderingFaces.map((face) => face.position.y);
@@ -32,18 +32,23 @@ export class FaceGroupActor extends Actor {
       Math.min(...xPositions),
       Math.min(...yPositions),
       Math.max(...xPositions),
-      Math.max(...yPositions),
+      Math.max(...yPositions)
     );
     super({
       ...actorArgs,
       anchor: vec(0, 0),
       height: (boundingBox.bottom - boundingBox.top + 1) * EDGE_LENGTH,
-      width: (boundingBox.right - boundingBox.left + 1) * EDGE_LENGTH,
+      width: (boundingBox.right - boundingBox.left + 1) * EDGE_LENGTH
     });
     this.position = position;
 
     this._boundingBox = boundingBox;
     this._renderingFaces = renderingFaces;
+  }
+
+  move(position: BinaryPosition) {
+    this.position = position;
+    this._updateGraphics();
   }
 
   update(engine: Engine, delta: number) {
@@ -75,25 +80,25 @@ export class FaceGroupActor extends Actor {
       members: this._renderingFaces
         .map(({ renderPosition, sprite }) => ({
           graphic: <Graphic>sprite,
-          offset: vec(renderPosition.x, renderPosition.y),
+          offset: vec(renderPosition.x, renderPosition.y)
         }))
         .concat([
           {
             graphic: <Graphic>new Circle({
               radius: centerIndicatorRadius,
-              color: Color.White,
+              color: Color.White
             }),
             offset: vec(
               (EDGE_LENGTH * this.scale.x) / 2 - centerIndicatorRadius * 1.5,
-              (EDGE_LENGTH * this.scale.y) / 2 - centerIndicatorRadius * 1.5,
-            ),
-          },
-        ]),
+              (EDGE_LENGTH * this.scale.y) / 2 - centerIndicatorRadius * 1.5
+            )
+          }
+        ])
     });
     this.graphics.use(graphicsGroup);
     this.pos = vec(
       this.position.x * EDGE_LENGTH * this.scale.x,
-      this.position.y * EDGE_LENGTH * this.scale.y,
+      this.position.y * EDGE_LENGTH * this.scale.y
     );
   }
 }

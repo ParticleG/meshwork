@@ -8,6 +8,7 @@ import { FaceGroupActor } from 'types/item';
 import { BinaryPosition } from 'types/common';
 import { InteractionManager } from 'types/InteractionManager';
 import { Player } from 'types/Player';
+import { keyHandlers } from 'src/ruleset/stacking/interaction';
 
 const mainGame = ref<HTMLCanvasElement>();
 
@@ -19,9 +20,9 @@ const faceGroupActor = new FaceGroupActor(
     new RenderingFaces('crystal', 0, undefined, { x: -1, y: 0 }),
     new RenderingFaces('crystal', 0, undefined, { x: 0, y: 0 }),
     new RenderingFaces('crystal', 0, undefined, { x: 0, y: -1 }),
-    new RenderingFaces('crystal', 0, undefined, { x: 1, y: -1 }),
+    new RenderingFaces('crystal', 0, undefined, { x: 1, y: -1 })
   ],
-  { x: 1, y: 1 },
+  { x: 1, y: 1 }
 );
 const field = new FrameActor(fieldSize);
 const currentPlayer = new Player();
@@ -39,9 +40,9 @@ const randomInsertField = () => {
         value: new FaceData(
           'crystal',
           Math.floor(randomArray[1] % 16),
-          undefined,
+          undefined
         ),
-        position: { x: j, y: i },
+        position: { x: j, y: i }
       });
     }
   }
@@ -70,10 +71,10 @@ onMounted(async () => {
     canvasElement: mainGame.value,
     displayMode: DisplayMode.FillContainer,
     enableCanvasTransparency: true,
-    fixedUpdateFps: 1000,
+    fixedUpdateFps: 1000
   });
   const interactionManager = new InteractionManager(currentPlayer, game.input);
-  interactionManager.players = [currentPlayer];
+  interactionManager.registerKeyHandlers(keyHandlers);
 
   game.add(field);
   game.add(faceGroupActor);
