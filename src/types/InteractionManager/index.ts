@@ -36,18 +36,18 @@ export class InteractionManager {
     inputHost.gamepads.on('button', (event) => {
       console.log(event);
     });
-    inputHost.pointers.on('down', (event) => {
-      console.log(event);
-    });
-    inputHost.pointers.on('move', (event) => {
-      console.log(event);
-    });
-    inputHost.pointers.on('up', (event) => {
-      console.log(event);
-    });
-    inputHost.pointers.on('wheel', (event) => {
-      console.log(event);
-    });
+    // inputHost.pointers.on('down', (event) => {
+    //   console.log(event);
+    // });
+    // inputHost.pointers.on('move', (event) => {
+    //   console.log(event);
+    // });
+    // inputHost.pointers.on('up', (event) => {
+    //   console.log(event);
+    // });
+    // inputHost.pointers.on('wheel', (event) => {
+    //   console.log(event);
+    // });
   }
 
   set currentPlayer(player: Player) {

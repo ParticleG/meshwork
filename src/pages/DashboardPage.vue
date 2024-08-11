@@ -78,9 +78,6 @@ onMounted(async () => {
 
   game.add(field);
   game.add(faceGroupActor);
-  game.onFatalException(() => {
-    game.stop();
-  });
   await game.start();
 });
 </script>
