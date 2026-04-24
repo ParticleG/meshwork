@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Color, DisplayMode, Engine, vec } from 'excalibur';
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 import { FrameActor } from 'src/types/container';
 import { FaceData, RenderingFaces } from 'types/item/types';
@@ -65,13 +65,31 @@ const setScales = (value: number | null) => {
   field.scale = scale;
 };
 
+let game: Engine | null = null;
+
+const handleVisibilityChange = () => {
+  if (!game) return;
+  if (document.hidden) {
+    game.clock.stop();
+  } else {
+    game.clock.start();
+  }
+};
+
 onMounted(async () => {
-  const game = new Engine({
+  game = new Engine({
     backgroundColor: Color.Transparent,
     canvasElement: mainGame.value,
     displayMode: DisplayMode.FillContainer,
     enableCanvasTransparency: true,
-    fixedUpdateFps: 1000
+    fixedUpdateFps: 1000,
+    handleContextLost: (e: Event) => {
+      e.preventDefault();
+      game?.clock.stop();
+    },
+    handleContextRestored: () => {
+      game?.clock.start();
+    }
   });
   const interactionManager = new InteractionManager(currentPlayer, game.input);
   interactionManager.registerKeyHandlers(keyHandlers);
@@ -79,6 +97,12 @@ onMounted(async () => {
   game.add(field);
   game.add(faceGroupActor);
   await game.start();
+
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
 });
 </script>
 
